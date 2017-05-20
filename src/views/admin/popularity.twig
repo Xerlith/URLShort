@@ -1,0 +1,52 @@
+{% extends 'base.twig' %}
+
+{% block title %}{{  'URLShort - URL list'|trans }}{% endblock %}
+{% block content %}
+    <a href="{{ url('admin_urls') }}" title="{{ 'Display all URLs'|trans }}">{{ 'Display all URLs'|trans }}</a>
+
+    <h1 class="page-header">
+        {{ 'Visit list'|trans }}
+    </h1>
+
+    {%  if visits|length > 0 %}
+
+        <div class="container">
+            {% if paginator.page > 1 %}
+                {% set previous = (paginator.page - 1) %}
+                <a class="button-link" href="{{ url('admin_popularity', {'page': previous}) }}" title="{{ 'previous page'|trans }}">{{ 'previous page'|trans }}</a>
+            {%  endif %}
+
+            {% if paginator.page < paginator.pagesCount %}
+                {% set next = (paginator.page + 1) %}
+                <a class="button-link" href="{{ url('admin_popularity', {'page': next}) }}" title="{{ 'next page'|trans }}">{{ 'next page'|trans }}</a>
+            {% endif %}
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>{{ 'URL ID'|trans }}</th>
+                <th>{{ 'Visitor IP'|trans }}</th>
+                <th>{{ 'Time of Visit'|trans }}</th>
+                <th colspan="3">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for array in visits %}
+                <tr>
+                    <td>{{ array.url_id|e }}</td>
+                    <td>{{ array.visitor_ip }}</td>
+                    <td>{{ array.visit_date }}</td>
+
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            {{ 'The URL does not exist or has not been visited'|trans }}.
+        </div>
+    {% endif %}
+{% endblock %}

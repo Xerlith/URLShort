@@ -1,0 +1,9 @@
+{% extends 'base.twig' %}
+{% block title %}{{  '500!' }}{% endblock %}
+
+{%block content%}
+    <h1>ERROR 500!</h1>
+    <p>
+        <a href="{{ url('index') }}" title="{{ 'Main Page'|trans }}">{{ 'Go back to the main page'|trans }}</a>
+    </p>
+{%endblock%}

@@ -1,0 +1,22 @@
+{# Add action template for Auth controller #}
+{% extends 'base.twig' %}
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+
+{% block title %}{{  'New user'|trans }}{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        body { margin: 20px; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ 'Register'|trans }}
+    </h1>
+    <form action="{{ url('register') }}" method="post">
+        {{ form_widget(form) }}
+        <input type="submit" class="btn btn-default"  name="submit" value="{{ 'Save'|trans }}" />
+    </form>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.twig' %}
+
+{% block title %}{{  'URLShort - User list'|trans }}{% endblock %}
+{% block content %}
+<a href="{{ url('admin_urls') }}" title="{{ 'Display Urls'|trans }}">{{ 'Display URLs'|trans }}</a>
+
+    <h1 class="page-header">
+        {{ 'User list'|trans }}
+    </h1>
+
+    {%  if users|length > 0 %}
+
+        <div class="container">
+            {% if paginator.page > 1 %}
+                {% set previous = (paginator.page - 1) %}
+                <a class="button-link" href="{{ url('admin_user', {'page': previous}) }}" title="{{ 'previous page'|trans }}">{{ 'previous page'|trans }}</a>
+            {%  endif %}
+
+            {% if paginator.page < paginator.pagesCount %}
+                {% set next = (paginator.page + 1) %}
+                <a class="button-link" href="{{ url('admin_user', {'page': next}) }}" title="{{ 'next page'|trans }}">{{ 'next page'|trans }}</a>
+            {% endif  %}
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>{{ 'ID'|trans }}</th>
+                <th>{{ 'Username'|trans }}</th>
+                <th>{{ 'Action'|trans }}</th>
+                <th colspan="3">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for array, user in users %}
+                <tr>
+                    <td>{{ user.id|e }}</td>
+                    <td>{{ user.login }}
+                    <td>
+                        <a href="{{ app.url_generator.generate('delete_user', {'id': user.id}) }}"
+                           title="{{ 'Delete user'|trans }}">
+                            {{ 'Delete user'|trans }}</a>
+                    </td>
+                    <td>
+                        <a href="{{ app.url_generator.generate('user_password', {'id': user.id}) }}"
+                           title="{{ 'Change password'|trans }}">
+                            {{ 'Set new password'|trans }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-danger" role="alert">
+            {{ 'Users not found'|trans }}.
+        </div>
+    {% endif %}
+{% endblock %}

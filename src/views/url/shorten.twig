@@ -1,0 +1,14 @@
+{% extends 'index/index.twig' %}
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+
+{% block title %}{{  'URLShort - create a new short URL'|trans }}{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ 'Shorten your URL'|trans }}
+    </h1>
+    <form action="{{ url('shorten') }}" method="post">
+        {{ form_widget(form) }}
+        <input type="submit" name="submit" value="{{ 'Shorten it!'|trans }}" />
+    </form>
+{% endblock %}

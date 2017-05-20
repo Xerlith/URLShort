@@ -1,0 +1,16 @@
+{% extends 'base.twig' %}
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+
+{% block title %}{{ 'Log in'|trans }}{% endblock %}
+
+
+{% block content %}
+    <h1 class="h1">
+        {{ 'Log in'|trans }}
+    </h1>
+    {{ error }}
+    <form action="{{ path('auth_login_check') }}" method="post">
+        {{ form_widget(form) }}
+        <input type="submit" class="btn btn-default" name="submit" value="{{ 'Log in'|trans }}" />
+    </form>
+{% endblock %}

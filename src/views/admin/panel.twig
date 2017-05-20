@@ -1,0 +1,10 @@
+{% extends 'base.twig' %}
+{% block title %}{{  'Admin Panel'|trans }}{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+    <h1 class="list-group-item-heading">{{ 'Choose destination'|trans }}</h1>
+        <a href="{{ url('admin_user') }}" class="button-link" title="{{ 'Display users'|trans }}">{{ 'Display users'|trans }}</a>
+        <a href="{{ url('admin_urls') }}" class="button-link" title="{{ 'Display Urls'|trans }}">{{ 'Display URLs'|trans }}</a>
+    </div>
+{% endblock %}

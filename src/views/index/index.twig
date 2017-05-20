@@ -1,0 +1,10 @@
+{% extends 'base.twig' %}
+
+{% block title %}{{  'URLShort' }}{% endblock %}
+
+{% block content %}
+    <h1>
+        <a href="{{ url('shorten') }}" title="{{ 'Shorten your URL'|trans }}">{{ 'Shorten your URL'|trans|upper }}</a>
+    </h1>
+
+{% endblock %}

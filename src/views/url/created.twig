@@ -1,0 +1,16 @@
+{% extends 'base.twig' %}
+
+{% block title %}{{  'URLShort - created new short URL!' }}{% endblock %}
+
+{% block content %}
+    <div class="popover-content">
+        {{ 'Your URL is available here'|trans }}:
+         <a href="{{ app.url_generator.generate( 'redirect', {'short':short} ) }}" title="{{ 'shortened link'|trans }}">
+             {{ app.url_generator.generate( 'redirect', {'short':short}, true ) }}
+         </a>
+    </div>
+    <h2>
+        <a href="{{ url('shorten') }}" title="{{ 'Shorten another URL'|trans }}">{{ 'Shorten another URL'|trans }}</a>
+    </h2>
+
+{% endblock %}

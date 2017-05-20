@@ -1,0 +1,17 @@
+{# Delete action tempalte for UrlController #}
+{% extends 'base.twig' %}
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+
+{% block title %}{{  'Delete URL'|trans }}{% endblock %}
+
+{% block content %}
+    <h1>
+        {{ 'Delete URL'|trans }}
+    </h1>
+    <h2>{{ 'About to delete'|trans }} {{ app.url_generator.generate( 'redirect', {'short':short}, true ) }}</h2>
+    <p>{{ 'Sure about that?'|trans }}</p>
+    <form action="{{ url('delete', {'id': id }) }}" method="post">
+        {{ form_widget(form) }}
+        <input type="submit" name="submit" value="{{ 'Delete'|trans }}" />
+    </form>
+{% endblock %}
