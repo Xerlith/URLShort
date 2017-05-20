@@ -114,6 +114,7 @@ class AdminController implements ControllerProviderInterface
         }
     }
 
+
     /**
      * @param Application $app
      * @param Request $request
@@ -121,65 +122,7 @@ class AdminController implements ControllerProviderInterface
      * @throws \Doctrine\DBAL\DBALException
      */
     public function deleteUrlAction(Application $app, Request $request){
-        if ($app['security']->isGranted('ROLE_ADMIN')) {
-            $urlModel = new UrlsModel($app);
-            $id = (int)$request->get('id', null);
-            $url_data = $urlModel->getOneById($id);
-
-            if (isset($url_data)) {
-                $form = $app['form.factory']
-                    ->createBuilder(new UrlForm(), $url_data)->getForm();
-                $form->remove('url');
-                $form->remove('user_id');
-                $form->remove('short_url');
-
-                $form->handleRequest($request);
-
-                if ($form->isValid()) {
-                    try {
-                        $urlModel->deleteUrl($id);
-                    } catch (\PDOException $e) {
-                        $app['session']->getFlashBag()->add(
-                            'message', array(
-                                'type' => 'danger',
-                                'content' =>
-                                    $app['translator']->trans('URL could not be deleted.')
-                            )
-                        );
-                    }
-                    $app['session']->getFlashBag()->add(
-                        'message', array(
-                            'type' => 'success',
-                            'content' =>
-                                $app['translator']->trans('URL deleted.')
-                        )
-                    );
-                    return $app->redirect(
-                        $app['url_generator']->generate(
-                            'index', array(), 301)
-                    );
-                }
-
-                $this->view = array(
-                    'form' => $form->createView(),
-                    'error' => $app['security.last_error'],
-                    'short' => $url_data['short_url'],
-                    'id' => $url_data['url_id']
-                );
-                return $app['twig']->render('admin/deleteurl.twig', $this->view);
-            } else {
-                $app['session']->getFlashBag()->add(
-                    'message', array(
-                        'type' => 'danger',
-                        'content' =>
-                            $app['translator']->trans('URL could not be found.')
-                    )
-                );
-                return $app['twig']->render('admin/urls.twig', $this->view);
-
-            }
-
-        } else {
+        if (!$app['security']->isGranted('ROLE_ADMIN')) {
             $app['session']->getFlashBag()->add(
                 'message', array(
                     'type' => 'danger',
@@ -192,6 +135,56 @@ class AdminController implements ControllerProviderInterface
                     'index', array(), 301)
             );
         }
+        $urlModel = new UrlsModel($app);
+        $id = (int)$request->get('id', null);
+        $url_data = $urlModel->getOneById($id);
+        if (!isset($url_data['user_id'])) {
+            $app['session']->getFlashBag()->add(
+                'message', array(
+                    'type' => 'danger',
+                    'content' =>
+                        $app['translator']->trans('URL could not be found.')
+                )
+            );
+            return $app['twig']->render('admin/urls.twig', $this->view);
+        }
+        $form = $app['form.factory']
+            ->createBuilder(new UrlForm(), $url_data)->getForm();
+        $form->remove('url');
+        $form->remove('user_id');
+        $form->remove('short_url');
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            try {
+                $urlModel->deleteUrl($id);
+            } catch (\PDOException $e) {
+                $app['session']->getFlashBag()->add(
+                    'message', array(
+                        'type' => 'danger',
+                        'content' =>
+                            $app['translator']->trans('URL could not be deleted.')
+                    )
+                );
+            }
+            $app['session']->getFlashBag()->add(
+                'message', array(
+                    'type' => 'success',
+                    'content' =>
+                        $app['translator']->trans('URL deleted.')
+                )
+            );
+            return $app->redirect(
+                $app['url_generator']->generate(
+                    'index', array(), 301)
+            );
+        }
+        $this->view = array(
+            'form' => $form->createView(),
+            'error' => $app['security.last_error'],
+            'short' => $url_data['short_url'],
+            'id' => $url_data['url_id']
+        );
+        return $app['twig']->render('admin/deleteurl.twig', $this->view);
     }
 
     /**
@@ -200,25 +193,25 @@ class AdminController implements ControllerProviderInterface
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function viewUsers(Application $app, Request $request)
-        {
-            if ($app['security']->isGranted('ROLE_ADMIN')) {
+    {
+        if ($app['security']->isGranted('ROLE_ADMIN')) {
 
-                $pageLimit = 10;
-                $page = (int)$request->get('page', 1);
-                $userModel = new UsersModel($app);
+            $pageLimit = 10;
+            $page = (int)$request->get('page', 1);
+            $userModel = new UsersModel($app);
 
-                $this->view = array_merge(
-                    $this->view, $userModel->getPaginatedUsers($page, $pageLimit)
-                );
-                return $app['twig']->render('admin/users.twig', $this->view);
-            } else {
-                return $app->redirect(
-                    $app['url_generator']->generate(
-                        'index', 301
-                    )
-                );
-            }
+            $this->view = array_merge(
+                $this->view, $userModel->getPaginatedUsers($page, $pageLimit)
+            );
+            return $app['twig']->render('admin/users.twig', $this->view);
+        } else {
+            return $app->redirect(
+                $app['url_generator']->generate(
+                    'index', 301
+                )
+            );
         }
+    }
 
     /**
      * @param Application $app

@@ -241,109 +241,96 @@ class UrlController implements ControllerProviderInterface
      */
     public function deleteAction(Application $app, Request $request)
     {
-        try {
-            if ($app['security']->isGranted('IS_AUTHENTICATED_FULLY')) {
-                $urlModel = new UrlsModel($app);
-                $id = (int)$request->get('id', null);
-                $url_data = $urlModel->getOneById($id);
-                $user_id = $this->currentUserId($app);
-
-                if ($user_id == $url_data['user_id']) {
-                    if (isset($url_data)) {
-                        $form = $app['form.factory']
-                            ->createBuilder(new UrlForm(), $url_data)->getForm();
-                        $form->remove('url');
-                        $form->remove('user_id');
-                        $form->remove('short_url');
-
-                        $form->handleRequest($request);
-
-                        if ($form->isValid()) {
-                            try {
-                                $urlModel->deleteUrl($id);
-                            } catch (\PDOException $e) {
-                                $app['session']->getFlashBag()->add(
-                                    'message',
-                                    array(
-                                        'type' => 'danger',
-                                        'content' =>
-                                            $app['translator']->trans('URL could not be deleted.')
-                                    )
-                                );
-                            }
-                            $app['session']->getFlashBag()->add(
-                                'message',
-                                array(
-                                    'type' => 'success',
-                                    'content' =>
-                                        $app['translator']->trans('URL deleted.')
-                                )
-                            );
-                            return $app->redirect(
-                                $app['url_generator']->generate(
-                                    'index',
-                                    array(),
-                                    301
-                                )
-                            );
-                        }
-
-                        $this->view = array(
-                            'form' => $form->createView(),
-                            'error' => $app['security.last_error'],
-                            'short' => $url_data['short_url'],
-                            'id' => $url_data['url_id']
-                        );
-                        return $app['twig']->render('url/delete.twig', $this->view);
-                    } else {
-                        $app['session']->getFlashBag()->add(
-                            'message',
-                            array(
-                                'type' => 'danger',
-                                'content' =>
-                                    $app['translator']->trans('URL could not be found.')
-                            )
-                        );
-                        return $app['twig']->render('url/view.twig', $this->view);
-
-                    }
-                } else {
-                    $app['session']->getFlashBag()->add(
-                        'message',
-                        array(
-                            'type' => 'danger',
-                            'content' =>
-                                $app['translator']->trans('This URL is not yours!')
-                        )
-                    );
-                    return $app->redirect(
-                        $app['url_generator']->generate(
-                            'index',
-                            array(),
-                            301
-                        )
-                    );
-                }
-            } else {
+        if (!$app['security']->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $app['session']->getFlashBag()->add(
+                'message',
+                array(
+                    'type' => 'danger',
+                    'content' =>
+                        $app['translator']->trans('Log in first!')
+                )
+            );
+            return $app->redirect(
+                $app['url_generator']->generate(
+                    'index',
+                    array(),
+                    301
+                )
+            );
+        }
+        $urlModel = new UrlsModel($app);
+        $id = (int)$request->get('id', null);
+        $url_data = $urlModel->getOneById($id);
+        $user_id = $this->currentUserId($app);
+        if (!isset($url_data['user_id'])) {
+            $app['session']->getFlashBag()->add(
+                'message',
+                array(
+                    'type' => 'danger',
+                    'content' =>
+                        $app['translator']->trans('URL could not be found.')
+                )
+            );
+            return $app['twig']->render('index/index.twig', $this->view);
+        }
+        if ($user_id != $url_data['user_id']) {
+            $app['session']->getFlashBag()->add(
+                'message',
+                array(
+                    'type' => 'danger',
+                    'content' =>
+                        $app['translator']->trans('This URL is not yours!')
+                )
+            );
+            return $app->redirect(
+                $app['url_generator']->generate(
+                    'index',
+                    array(),
+                    301
+                )
+            );
+        }
+        $form = $app['form.factory']
+            ->createBuilder(new UrlForm(), $url_data)->getForm();
+        $form->remove('url');
+        $form->remove('user_id');
+        $form->remove('short_url');
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            try {
+                $urlModel->deleteUrl($id);
+            } catch (\PDOException $e) {
                 $app['session']->getFlashBag()->add(
                     'message',
                     array(
                         'type' => 'danger',
                         'content' =>
-                            $app['translator']->trans('Log in first!')
-                    )
-                );
-                return $app->redirect(
-                    $app['url_generator']->generate(
-                        'index',
-                        array(),
-                        301
+                            $app['translator']->trans('URL could not be deleted.')
                     )
                 );
             }
-        } catch (Exception $e){
-            $app->abort(404, $app['translator']->trans('Could not delete'));
-
+            $app['session']->getFlashBag()->add(
+                'message',
+                array(
+                    'type' => 'success',
+                    'content' =>
+                        $app['translator']->trans('URL deleted.')
+                )
+            );
+            return $app->redirect(
+                $app['url_generator']->generate(
+                    'index',
+                    array(),
+                    301
+                )
+            );
         }
+        $this->view = array(
+            'form' => $form->createView(),
+            'error' => $app['security.last_error'],
+            'short' => $url_data['short_url'],
+            'id' => $url_data['url_id']
+        );
+        return $app['twig']->render('url/delete.twig', $this->view);
     }
 }
